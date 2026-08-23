@@ -23,6 +23,9 @@ importers:
       '@steeze-ui/heroicons':
         specifier: ^2.4.2
         version: 2.4.2
+      '@steeze-ui/svelte-icon':
+        specifier: ^1.6.2
+        version: 1.6.2(svelte@5.56.10(@typescript-eslint/types@8.67.0))
       '@sveltejs/adapter-static':
         specifier: next
         version: 4.0.0-next.4(@sveltejs/kit@3.0.0-next.25(@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.56.10(@typescript-eslint/types@8.67.0))(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0)))(svelte@5.56.10(@typescript-eslint/types@8.67.0))(typescript@6.0.3)(vite@8.2.2(@types/node@24.13.3)(jiti@2.7.0)))
@@ -304,6 +307,11 @@ packages:
 
   '@steeze-ui/heroicons@2.4.2':
     resolution: {integrity: sha512-66luL+uaxyC6mcZigewH4phfDxNWj4sH+n6qK2VnY3zcgpMmNAgVQbMGfZYfKhLqrUo13BlqpmhWuHqAUpehlA==}
+
+  '@steeze-ui/svelte-icon@1.6.2':
+    resolution: {integrity: sha512-Q2WP/RkM1JhMueX0FJogSj4J1bncSHaAiiPCqjcseRcHKqfpjYFPJa8bA50I+4KbyOVJ9fdUvTQ3ww9X0ITRxQ==}
+    peerDependencies:
+      svelte: ^5.0.0
 
   '@sveltejs/acorn-typescript@1.0.13':
     resolution: {integrity: sha512-wgKggnhZVL9Bfx1OaKKTrYY9BFRk6C8UAkQNUcIv1+llzYrIqy+RZm5HPKzn0NpEBvTVhTqB4kQyllZywsRBRQ==}
@@ -1787,6 +1795,10 @@ snapshots:
   '@standard-schema/spec@1.1.0': {}
 
   '@steeze-ui/heroicons@2.4.2': {}
+
+  '@steeze-ui/svelte-icon@1.6.2(svelte@5.56.10(@typescript-eslint/types@8.67.0))':
+    dependencies:
+      svelte: 5.56.10(@typescript-eslint/types@8.67.0)
 
   '@sveltejs/acorn-typescript@1.0.13(acorn@8.18.0)':
     dependencies:

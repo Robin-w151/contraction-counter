@@ -1,0 +1,13 @@
+{
+	"name": "Contraction Counter",
+	"short_name": "Contractions",
+	"description": "Time and log contractions.",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#282a36",
+	"theme_color": "#282a36",
+	"lang": "en",
+	"icons": []
+}

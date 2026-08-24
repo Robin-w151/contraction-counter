@@ -10,23 +10,127 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 		<meta name="apple-mobile-web-app-title" content="Contractions" />
 		<script>
-			(() => {
+			function storedValue(key, allowed) {
 				try {
-					const stored = localStorage.getItem('mode');
-					document.documentElement.dataset.mode =
-						stored === 'light' || stored === 'dark'
-							? stored
-							: matchMedia('(prefers-color-scheme: dark)').matches
-								? 'dark'
-								: 'light';
+					const value = localStorage.getItem(key);
+					if (allowed.includes(value)) return value;
+				} catch {
+					// Fall through to the caller's default.
+				}
+				return null;
+			}
+
+			function resolveMode() {
+				const stored = storedValue('mode', ['light', 'dark']);
+				if (stored) return stored;
+				if (matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+				return 'light';
+			}
+
+			function resolveLocale() {
+				const stored = storedValue('PARAGLIDE_LOCALE', ['de', 'en']);
+				if (stored) return stored;
+				if (navigator.language.startsWith('de')) return 'de';
+				return 'en';
+			}
+
+			function applyMode() {
+				try {
+					document.documentElement.dataset.mode = resolveMode();
 				} catch {
 					document.documentElement.dataset.mode = 'light';
 				}
+			}
+
+			function applyLocale() {
+				try {
+					document.documentElement.lang = resolveLocale();
+				} catch {
+					document.documentElement.lang = 'en';
+				}
+			}
+
+			function beginLoading() {
+				document.documentElement.dataset.appLoading = '';
+				document.documentElement.setAttribute('aria-busy', 'true');
+				setTimeout(revealApp, 3000);
+			}
+
+			function revealApp() {
+				delete document.documentElement.dataset.appLoading;
+				document.documentElement.removeAttribute('aria-busy');
+			}
+
+			(() => {
+				applyMode();
+				applyLocale();
+				beginLoading();
 			})();
 		</script>
+		<style>
+			#app-loading {
+				position: fixed;
+				inset: 0;
+				z-index: 100;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				opacity: 0;
+				visibility: hidden;
+				transition:
+					opacity 200ms ease,
+					visibility 0s linear 200ms;
+			}
+
+			[data-app-loading] #app-loading {
+				opacity: 1;
+				visibility: visible;
+				transition: none;
+			}
+
+			[data-app-loading] [data-app-root] {
+				visibility: hidden;
+			}
+
+			#app-loading .spinner {
+				width: 2.5rem;
+				height: 2.5rem;
+				border: 3px solid #bd93f9;
+				border-top-color: transparent;
+				border-radius: 50%;
+				opacity: 0;
+				animation:
+					app-loading-spin 700ms linear infinite,
+					app-loading-in 150ms ease-out 250ms forwards;
+			}
+
+			@keyframes app-loading-spin {
+				to {
+					transform: rotate(360deg);
+				}
+			}
+
+			@keyframes app-loading-in {
+				to {
+					opacity: 1;
+				}
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				#app-loading .spinner {
+					animation: app-loading-in 150ms ease-out 250ms forwards;
+				}
+			}
+		</style>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
+		<!-- Decorative and transient, so hidden from assistive tech; `aria-busy` on
+		     <html> is what actually announces the loading state. TODO: the app logo
+		     belongs here once the real artwork exists. -->
+		<div id="app-loading" aria-hidden="true">
+			<div class="spinner"></div>
+		</div>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

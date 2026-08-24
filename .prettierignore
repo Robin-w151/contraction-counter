@@ -7,3 +7,9 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Generated
+/src/lib/paraglide/
+# inlang manages everything here but settings.json (see project.inlang/.gitignore)
+/project.inlang/
+!/project.inlang/settings.json

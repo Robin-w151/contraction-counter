@@ -1,0 +1,13 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"app": {
+		"title": "Wehen-Zähler",
+		"tagline": "Das App-Grundgerüst steht — Timing und Protokoll folgen als Nächstes."
+	},
+	"theme": {
+		"darkMode": "Dunkelmodus"
+	},
+	"language": {
+		"label": "Sprache"
+	}
+}

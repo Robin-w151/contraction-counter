@@ -1,0 +1,13 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"app": {
+		"title": "Contraction Counter",
+		"tagline": "The app shell is in place — timing and logging land here next."
+	},
+	"theme": {
+		"darkMode": "Dark mode"
+	},
+	"language": {
+		"label": "Language"
+	}
+}

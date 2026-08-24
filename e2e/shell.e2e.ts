@@ -38,3 +38,39 @@ test('theme switch is keyboard operable', async ({ page }) => {
 
 	await expect(html).toHaveAttribute('data-mode', initial === 'dark' ? 'light' : 'dark');
 });
+
+// The pre-paint script in `app.html` resolves theme and locale independently so
+// that one failing cannot leave the other unset. These cover the branches the
+// happy-path tests never reach.
+test.describe('pre-paint fallbacks', () => {
+	test.use({ locale: 'de-DE' });
+
+	test('storage failure still resolves both mode and locale', async ({ page }) => {
+		await page.addInitScript(() => {
+			// Simulate Safari private mode: every read throws.
+			Object.defineProperty(Storage.prototype, 'getItem', {
+				value: () => {
+					throw new Error('storage unavailable');
+				}
+			});
+		});
+		await page.goto('/');
+
+		const html = page.locator('html');
+		await expect(html).toHaveAttribute('data-mode', /light|dark/);
+		// The mode failure must not have skipped locale resolution.
+		await expect(html).toHaveAttribute('lang', 'de');
+	});
+
+	test('missing navigator.language still yields the base locale', async ({ page }) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(navigator, 'language', { value: undefined });
+		});
+		await page.goto('/');
+
+		const html = page.locator('html');
+		await expect(html).toHaveAttribute('lang', 'en');
+		// ...and the locale failure must not have skipped the theme.
+		await expect(html).toHaveAttribute('data-mode', /light|dark/);
+	});
+});

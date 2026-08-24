@@ -13,6 +13,39 @@ test('serves a valid web app manifest', async ({ request }) => {
 	});
 });
 
+test('declares an icon set covering every install surface', async ({ request }) => {
+	const manifest = await (await request.get('/manifest.webmanifest')).json();
+	const icons: { src: string; type: string; purpose: string }[] = manifest.icons;
+
+	expect(icons.length).toBeGreaterThan(0);
+	// Without a maskable entry Android crops the square icon itself, which
+	// clips the ring. This is the assertion that catches a regenerated set
+	// that quietly dropped it.
+	expect(icons.some((icon) => icon.purpose === 'maskable')).toBe(true);
+
+	for (const icon of icons) {
+		const response = await request.get(icon.src);
+		expect(response.ok(), `${icon.src} should be served`).toBe(true);
+		expect(response.headers()['content-type'], `${icon.src} content type`).toContain(icon.type);
+	}
+});
+
+test('links the favicon and the iOS home screen icon', async ({ page, request }) => {
+	await page.goto('/');
+
+	// These hrefs read back resolved to absolute URLs, so match the tail rather
+	// than the literal path the source writes.
+	await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', /\/icon\.svg$/);
+	await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+		'href',
+		/\/apple-touch-icon\.png$/
+	);
+
+	for (const href of ['/icon.svg', '/apple-touch-icon.png']) {
+		expect((await request.get(href)).ok(), `${href} should be served`).toBe(true);
+	}
+});
+
 test('links the manifest from the document', async ({ page }) => {
 	await page.goto('/');
 	await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(

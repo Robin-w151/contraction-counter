@@ -2,12 +2,38 @@
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"app": {
 		"title": "Wehen-Zähler",
-		"tagline": "Das App-Grundgerüst steht — Timing und Protokoll folgen als Nächstes."
+		"tagline": "Einmal tippen, wenn eine Wehe beginnt, einmal, wenn sie endet."
 	},
 	"theme": {
 		"darkMode": "Dunkelmodus"
 	},
 	"language": {
 		"label": "Sprache"
+	},
+	"contractions": {
+		"start": "Wehe starten",
+		"stop": "Wehe beenden",
+		"elapsed": "Aktuelle Wehe",
+		"sinceLast": "Seit Beginn der letzten Wehe",
+		"noneYet": "Noch keine Wehen aufgezeichnet",
+		"lastDuration": "Letzte Dauer",
+		"lastInterval": "Letzter Abstand",
+		"startedAnnouncement": "Wehe gestartet",
+		"recordedAnnouncement": "Wehe aufgezeichnet: {duration} lang",
+		"clear": "Alle löschen",
+		"clearConfirm": "Zum Löschen erneut tippen",
+		"cleared": "Alle Wehen gelöscht",
+		"recorded": "{count} aufgezeichnet"
+	},
+	"rule511": {
+		"title": "5-1-1-Muster",
+		"duration": "Etwa eine Minute lang",
+		"interval": "Etwa fünf Minuten Abstand",
+		"hour": "Seit einer Stunde durchgehend",
+		"met": "Alle drei Kriterien sind erfüllt — jetzt ist normalerweise der Zeitpunkt, Hebamme oder Klinik anzurufen.",
+		"notMet": "Noch nicht so weit. Weiter messen.",
+		"disclaimer": "Keine medizinische Beratung. Richte dich immer nach den Anweisungen deiner Hebamme oder Ärztin bzw. deines Arztes.",
+		"criterionMet": "Erfüllt",
+		"criterionNotMet": "Nicht erfüllt"
 	}
 }

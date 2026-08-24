@@ -2,12 +2,38 @@
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"app": {
 		"title": "Contraction Counter",
-		"tagline": "The app shell is in place — timing and logging land here next."
+		"tagline": "Tap once when a contraction starts, once when it ends."
 	},
 	"theme": {
 		"darkMode": "Dark mode"
 	},
 	"language": {
 		"label": "Language"
+	},
+	"contractions": {
+		"start": "Start contraction",
+		"stop": "Stop contraction",
+		"elapsed": "Current contraction",
+		"sinceLast": "Since last contraction started",
+		"noneYet": "No contractions recorded yet",
+		"lastDuration": "Last duration",
+		"lastInterval": "Last interval",
+		"startedAnnouncement": "Contraction started",
+		"recordedAnnouncement": "Contraction recorded: {duration} long",
+		"clear": "Clear all",
+		"clearConfirm": "Tap again to erase everything",
+		"cleared": "All contractions cleared",
+		"recorded": "{count} recorded"
+	},
+	"rule511": {
+		"title": "5-1-1 pattern",
+		"duration": "Lasting about a minute",
+		"interval": "About five minutes apart",
+		"hour": "Keeping it up for an hour",
+		"met": "All three are met — this is usually the point to call your midwife or hospital.",
+		"notMet": "Not there yet. Keep timing.",
+		"disclaimer": "Not medical advice. Always follow the instructions your midwife or doctor gave you.",
+		"criterionMet": "Met",
+		"criterionNotMet": "Not met"
 	}
 }

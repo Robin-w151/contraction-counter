@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { locale, locales } from '#lib/locale.svelte.js';
+	import { locale, locales } from '#lib/shared/locale.svelte.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { SegmentedControl } from '@skeletonlabs/skeleton-svelte';
 </script>

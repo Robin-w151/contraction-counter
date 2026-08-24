@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { theme } from '#lib/theme.svelte.js';
+	import { theme } from '#lib/shared/theme.svelte.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Switch } from '@skeletonlabs/skeleton-svelte';
 	import { Moon, Sun } from '@steeze-ui/heroicons';

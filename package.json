@@ -2,6 +2,7 @@
 	"name": "contraction-counter",
 	"private": true,
 	"version": "0.0.1",
+	"license": "MIT",
 	"type": "module",
 	"imports": {
 		"#lib": "./src/lib/index.js",

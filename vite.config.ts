@@ -1,8 +1,8 @@
-import tailwindcss from '@tailwindcss/vite';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
-import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	plugins: [
@@ -21,6 +21,8 @@ export default defineConfig({
 				experimental: { async: true }
 			},
 			adapter: adapter(),
+			paths: { base: process.env.BASE_PATH ?? '', relative: false },
+			prerender: { entries: ['*', '/manifest.webmanifest'] },
 			experimental: { remoteFunctions: true }
 		})
 	],

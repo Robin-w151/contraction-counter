@@ -8,7 +8,7 @@ import {
 	intervalOf,
 	recentWindow
 } from './stats.js';
-import type { Contraction } from './types.js';
+import type { Contraction } from '../types.js';
 
 const at = (minutes: number, seconds = 0) =>
 	new Date(Date.UTC(2026, 7, 24, 10, minutes, seconds)).toISOString();

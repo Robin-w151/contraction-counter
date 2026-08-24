@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STORAGE_KEY, clear, load, save } from './storage.js';
-import type { Contraction } from './types.js';
+import type { Contraction } from '../types.js';
 
 const NOW = new Date('2026-08-24T12:00:00.000Z');
 

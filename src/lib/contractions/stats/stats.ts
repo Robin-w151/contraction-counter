@@ -1,7 +1,7 @@
 import { fromOffsetString } from '#lib/shared/datetime.js';
 import type { Locale as DateFnsLocale } from 'date-fns';
 import { differenceInMilliseconds, formatDuration, intervalToDuration, subHours } from 'date-fns';
-import type { Contraction, Rule511 } from './types.js';
+import type { Contraction, Rule511 } from '../types.js';
 
 const MIN_DURATION_MS = 60_000; // the first "1" of 5-1-1: a minute long
 const MAX_INTERVAL_MS = 5 * 60_000; // the "5": five minutes apart

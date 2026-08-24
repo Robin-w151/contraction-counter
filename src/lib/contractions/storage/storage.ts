@@ -1,6 +1,6 @@
 import { differenceInMinutes } from 'date-fns';
 import { fromOffsetString } from '#lib/shared/datetime.js';
-import type { Contraction, OffsetDateTime, PersistedState } from './types.js';
+import type { Contraction, OffsetDateTime, PersistedState } from '../types.js';
 
 export const STORAGE_KEY = 'contractions';
 

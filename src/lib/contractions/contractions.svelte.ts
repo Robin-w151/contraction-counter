@@ -1,7 +1,7 @@
 import { browser } from '$app/env';
 import { nowOffsetString } from '#lib/shared/datetime.js';
-import { durationOf, elapsedSince, evaluate511, intervalOf } from './stats.js';
-import * as storage from './storage.js';
+import { durationOf, elapsedSince, evaluate511, intervalOf } from './stats/stats.js';
+import * as storage from './storage/storage.js';
 import type { Contraction, OffsetDateTime, Rule511 } from './types.js';
 
 class Contractions {

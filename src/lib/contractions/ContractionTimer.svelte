@@ -3,7 +3,7 @@
 	import { dateFnsLocale } from '#lib/shared/datetime.js';
 	import { locale } from '#lib/shared/locale.svelte.js';
 	import { contractions } from './contractions.svelte.js';
-	import { formatClock, formatSpoken } from './stats.js';
+	import { formatClock, formatSpoken } from './stats/stats.js';
 
 	let announcement = $state('');
 

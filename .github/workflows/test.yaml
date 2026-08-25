@@ -1,29 +1,28 @@
 name: E2E
 
 on:
-  deployment_status:
+  workflow_call:
+    inputs:
+      base_url:
+        description: URL to test against
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       base_url:
         description: URL to test against
         required: true
+        type: string
         default: https://robin-w151.github.io/contraction-counter/
 
 permissions:
   contents: read
 
-concurrency:
-  group: e2e-${{ github.event.deployment_status.environment_url || inputs.base_url }}
-  cancel-in-progress: true
-
 jobs:
   e2e:
-    if: github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'github-pages')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event.deployment.sha || github.sha }}
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           version: 10
@@ -35,7 +34,7 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec playwright test
         env:
-          E2E_BASE_URL: ${{ github.event.deployment_status.environment_url || inputs.base_url }}
+          E2E_BASE_URL: ${{ inputs.base_url }}
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: failure()
         with:

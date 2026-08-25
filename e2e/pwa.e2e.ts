@@ -1,20 +1,25 @@
 import { expect, test } from '@playwright/test';
 
-test('serves a valid web app manifest', async ({ request }) => {
-	const response = await request.get('/manifest.webmanifest');
+// The deployed site lives under a base path (/contraction-counter/) while the local
+// preview serves from the root, so paths the app writes are derived from baseURL
+// rather than hardcoded.
+const basePath = (baseURL: string | undefined) => new URL('.', baseURL).pathname;
+
+test('serves a valid web app manifest', async ({ request, baseURL }) => {
+	const response = await request.get('manifest.webmanifest');
 	expect(response.ok()).toBe(true);
 
 	const manifest = await response.json();
 	expect(manifest).toMatchObject({
 		name: 'Contraction Counter',
-		start_url: '/',
-		scope: '/',
+		start_url: basePath(baseURL),
+		scope: basePath(baseURL),
 		display: 'standalone'
 	});
 });
 
 test('declares an icon set covering every install surface', async ({ request }) => {
-	const manifest = await (await request.get('/manifest.webmanifest')).json();
+	const manifest = await (await request.get('manifest.webmanifest')).json();
 	const icons: { src: string; type: string; purpose: string }[] = manifest.icons;
 
 	expect(icons.length).toBeGreaterThan(0);
@@ -31,7 +36,7 @@ test('declares an icon set covering every install surface', async ({ request }) 
 });
 
 test('links the favicon and the iOS home screen icon', async ({ page, request }) => {
-	await page.goto('/');
+	await page.goto('.');
 
 	// These hrefs read back resolved to absolute URLs, so match the tail rather
 	// than the literal path the source writes.
@@ -41,22 +46,22 @@ test('links the favicon and the iOS home screen icon', async ({ page, request })
 		/\/apple-touch-icon\.png$/
 	);
 
-	for (const href of ['/icon.svg', '/apple-touch-icon.png']) {
+	for (const href of ['icon.svg', 'apple-touch-icon.png']) {
 		expect((await request.get(href)).ok(), `${href} should be served`).toBe(true);
 	}
 });
 
-test('links the manifest from the document', async ({ page }) => {
-	await page.goto('/');
+test('links the manifest from the document', async ({ page, baseURL }) => {
+	await page.goto('.');
 	await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
 		'href',
-		'/manifest.webmanifest'
+		`${basePath(baseURL)}manifest.webmanifest`
 	);
 	await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#282a36');
 });
 
 test('registers a service worker and works offline', async ({ page, context }) => {
-	await page.goto('/');
+	await page.goto('.');
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
 
 	await context.setOffline(true);

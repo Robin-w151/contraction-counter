@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 const control = '[data-scope="switch"][data-part="control"]';
 
 test('header stays visible while scrolling', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('.');
 	const header = page.getByRole('banner');
 	await expect(header).toBeVisible();
 
@@ -13,7 +13,7 @@ test('header stays visible while scrolling', async ({ page }) => {
 });
 
 test('theme switch toggles and persists the mode', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('.');
 	const html = page.locator('html');
 	const initial = await html.getAttribute('data-mode');
 	const toggled = initial === 'dark' ? 'light' : 'dark';
@@ -29,7 +29,7 @@ test('theme switch toggles and persists the mode', async ({ page }) => {
 });
 
 test('theme switch is keyboard operable', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('.');
 	const html = page.locator('html');
 	const initial = await html.getAttribute('data-mode');
 
@@ -54,7 +54,7 @@ test.describe('pre-paint fallbacks', () => {
 				}
 			});
 		});
-		await page.goto('/');
+		await page.goto('.');
 
 		const html = page.locator('html');
 		await expect(html).toHaveAttribute('data-mode', /light|dark/);
@@ -66,7 +66,7 @@ test.describe('pre-paint fallbacks', () => {
 		await page.addInitScript(() => {
 			Object.defineProperty(navigator, 'language', { value: undefined });
 		});
-		await page.goto('/');
+		await page.goto('.');
 
 		const html = page.locator('html');
 		await expect(html).toHaveAttribute('lang', 'en');

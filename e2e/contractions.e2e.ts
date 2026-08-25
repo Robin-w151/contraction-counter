@@ -26,7 +26,7 @@ const seed = (page: Page, records: { start: string; end: string }[]) =>
 
 test('times a contraction from start to stop', async ({ page }) => {
 	await startClock(page);
-	await page.goto('/');
+	await page.goto('.');
 
 	await expect(readout(page)).toHaveText('–:––');
 	await startButton(page).click();
@@ -41,7 +41,7 @@ test('times a contraction from start to stop', async ({ page }) => {
 
 test('resumes a contraction that was running when the page reloaded', async ({ page }) => {
 	await startClock(page);
-	await page.goto('/');
+	await page.goto('.');
 
 	await startButton(page).click();
 	await page.clock.runFor(30_000);
@@ -59,7 +59,7 @@ test('resumes a contraction that was running when the page reloaded', async ({ p
 
 test('persists completed contractions and their interval across a reload', async ({ page }) => {
 	await startClock(page);
-	await page.goto('/');
+	await page.goto('.');
 
 	await startButton(page).click();
 	await page.clock.runFor(60_000);
@@ -81,7 +81,7 @@ test('persists completed contractions and their interval across a reload', async
 
 test('clear all wipes the log and it stays wiped', async ({ page }) => {
 	await startClock(page);
-	await page.goto('/');
+	await page.goto('.');
 
 	await startButton(page).click();
 	await page.clock.runFor(45_000);
@@ -115,7 +115,7 @@ test.describe('5-1-1 indicator', () => {
 	test('stays unmet for a short log', async ({ page }) => {
 		await startClock(page);
 		await seed(page, qualifying.slice(-2));
-		await page.goto('/');
+		await page.goto('.');
 
 		await expect(page.getByTestId('rule511-verdict')).toHaveText('Not there yet. Keep timing.');
 	});
@@ -123,7 +123,7 @@ test.describe('5-1-1 indicator', () => {
 	test('flips to met once the pattern has held for an hour', async ({ page }) => {
 		await startClock(page, new Date('2026-08-24T10:15:00.000Z'));
 		await seed(page, qualifying);
-		await page.goto('/');
+		await page.goto('.');
 
 		await expect(page.getByTestId('rule511-verdict')).toContainText('All three are met');
 	});
@@ -131,7 +131,7 @@ test.describe('5-1-1 indicator', () => {
 
 test('the timer is translated', async ({ page }) => {
 	await startClock(page);
-	await page.goto('/');
+	await page.goto('.');
 
 	await page
 		.locator('[data-scope="radio-group"][data-part="item"]')

@@ -30,7 +30,7 @@ const expectLoadingThenContent = async (page: Page, text: string) => {
 };
 
 test('defaults to English for an English browser', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('.');
 	await expect(title(page, en)).toBeVisible();
 	await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 	await expect(page.getByRole('radio', { name: 'English' })).toBeChecked();
@@ -38,14 +38,14 @@ test('defaults to English for an English browser', async ({ page }) => {
 
 test('English goes through the same loading screen as German', async ({ page }) => {
 	await stallHydration(page, 600);
-	await page.goto('/', { waitUntil: 'commit' });
+	await page.goto('.', { waitUntil: 'commit' });
 
 	// The uniform launch is the whole point of the loading screen.
 	await expectLoadingThenContent(page, en);
 });
 
 test('switching to German translates the UI and persists', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('.');
 	// setLocale() reloads the document; the assertions below wait it out.
 	await option(page, 'Deutsch').click();
 
@@ -59,7 +59,7 @@ test('switching to German translates the UI and persists', async ({ page }) => {
 });
 
 test('switching back to English restores the base locale', async ({ page }) => {
-	await page.goto('/');
+	await page.goto('.');
 	await option(page, 'Deutsch').click();
 	await expect(page.locator('html')).toHaveAttribute('lang', 'de');
 
@@ -100,7 +100,7 @@ test.describe('German browser', () => {
 		// guarantees there are frames spanning the loading window to sample.
 		await sampleFrames(page);
 		await stallHydration(page, 600);
-		await page.goto('/', { waitUntil: 'commit' });
+		await page.goto('.', { waitUntil: 'commit' });
 
 		await expectLoadingThenContent(page, de);
 
@@ -117,26 +117,26 @@ test.describe('German browser', () => {
 		// inline failsafe timer must still un-hide the page.
 		await page.route('**/_app/immutable/entry/*.js', (route) => route.abort());
 		await sampleFrames(page);
-		await page.goto('/');
+		await page.goto('.');
 
 		await expect(page.locator('[data-app-root]')).toBeVisible({ timeout: 6000 });
 		await expect(page.locator('html')).not.toHaveAttribute('aria-busy', 'true');
 	});
 
 	test('auto-detects German with no stored preference', async ({ page }) => {
-		await page.goto('/');
+		await page.goto('.');
 		await expect(title(page, de)).toBeVisible();
 		await expect(page.locator('html')).toHaveAttribute('lang', 'de');
 	});
 
 	test('translates the theme switch label', async ({ page }) => {
-		await page.goto('/');
+		await page.goto('.');
 		await expect(page.getByRole('switch', { name: 'Dunkelmodus' })).toBeVisible();
 	});
 });
 
 test('locale switch still works offline from the cached shell', async ({ page, context }) => {
-	await page.goto('/');
+	await page.goto('.');
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
 
 	await context.setOffline(true);

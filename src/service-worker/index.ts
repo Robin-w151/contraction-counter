@@ -8,12 +8,7 @@ const precached = new Set(precache);
 const CACHE = `cache-${hash(precache.join(','))}`;
 
 sw.addEventListener('install', (event) => {
-	event.waitUntil(
-		caches
-			.open(CACHE)
-			.then((cache) => cache.addAll(precache))
-			.then(() => sw.skipWaiting())
-	);
+	event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(precache)));
 });
 
 sw.addEventListener('activate', (event) => {
@@ -33,13 +28,13 @@ sw.addEventListener('fetch', (event) => {
 	const url = new URL(event.request.url);
 	if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
-	event.respondWith(respond(event.request, url));
+	event.respondWith(respond(event, url));
 });
 
-async function respond(request: Request, url: URL) {
+async function respond(event: FetchEvent, url: URL) {
+	const request = event.request;
 	const cache = await caches.open(CACHE);
 
-	// Precached files are content-hashed or part of the prerendered shell — cache wins.
 	if (url.origin === location.origin && precached.has(url.pathname)) {
 		const cached = await cache.match(url.pathname);
 		if (cached) return cached;
@@ -48,14 +43,13 @@ async function respond(request: Request, url: URL) {
 	try {
 		const response = await fetch(request);
 		if (url.origin === location.origin && response.ok && response.type === 'basic') {
-			cache.put(request, response.clone());
+			event.waitUntil(cache.put(request, response.clone()).catch(() => {}));
 		}
 		return response;
 	} catch (error) {
 		const cached = await cache.match(request);
 		if (cached) return cached;
 
-		// Deep links that were never visited still get the prerendered shell offline.
 		if (request.mode === 'navigate') {
 			const shell = await cache.match(root);
 			if (shell) return shell;

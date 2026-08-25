@@ -1,6 +1,19 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const control = '[data-scope="switch"][data-part="control"]';
+
+/**
+ * `emulateMedia` returns before the page has run its own change listeners, so a
+ * bare assertion can read the old value and pass by accident.
+ */
+async function setSystemScheme(page: Page, scheme: 'light' | 'dark') {
+	await page.emulateMedia({ colorScheme: scheme });
+	await page.waitForFunction(
+		(value) => matchMedia(`(prefers-color-scheme: ${value})`).matches,
+		scheme
+	);
+	await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => resolve(null))));
+}
 
 test('header stays visible while scrolling', async ({ page }) => {
 	await page.goto('.');
@@ -26,6 +39,34 @@ test('theme switch toggles and persists the mode', async ({ page }) => {
 
 	await page.reload();
 	await expect(html).toHaveAttribute('data-mode', toggled);
+});
+
+test('follows the system preference as it changes', async ({ page }) => {
+	await page.emulateMedia({ colorScheme: 'light' });
+	await page.goto('.');
+	const html = page.locator('html');
+	await expect(html).toHaveAttribute('data-mode', 'light');
+
+	await setSystemScheme(page, 'dark');
+	await expect(html).toHaveAttribute('data-mode', 'dark');
+
+	await setSystemScheme(page, 'light');
+	await expect(html).toHaveAttribute('data-mode', 'light');
+});
+
+test('stops following the system once the mode has been overridden', async ({ page }) => {
+	await page.emulateMedia({ colorScheme: 'light' });
+	await page.goto('.');
+	const html = page.locator('html');
+	await expect(html).toHaveAttribute('data-mode', 'light');
+
+	// Choosing the mode the system is not on is what makes it an override.
+	await page.locator(control).click();
+	await expect(html).toHaveAttribute('data-mode', 'dark');
+
+	await setSystemScheme(page, 'dark');
+	await setSystemScheme(page, 'light');
+	await expect(html).toHaveAttribute('data-mode', 'dark');
 });
 
 test('theme switch is keyboard operable', async ({ page }) => {

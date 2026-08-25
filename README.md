@@ -19,7 +19,8 @@ Live at <https://robin-w151.github.io/contraction-counter/>.
 - **5-1-1 evaluation** — contractions lasting about a minute, about five minutes apart, sustained for
   an hour. Each criterion is shown separately, plus an overall verdict.
 - **Offline first** — a service worker precaches the whole app, so it keeps working without a
-  connection.
+  connection. A new deployment waits until every tab is closed before taking over, so an update can
+  never pull the cache out from under a session in progress.
 - **Local only** — everything lives in `localStorage`; no accounts, no network calls, no telemetry.
 - **Internationalised** — English and German, via Paraglide.
 - **Light and dark themes**, following the system preference until you override it.

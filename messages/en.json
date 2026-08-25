@@ -21,9 +21,7 @@
 		"startedAnnouncement": "Contraction started",
 		"recordedAnnouncement": "Contraction recorded: {duration} long",
 		"clear": "Clear all",
-		"clearConfirm": "Tap again to erase everything",
-		"cleared": "All contractions cleared",
-		"recorded": "{count} recorded"
+		"clearConfirm": "Tap again to erase everything"
 	},
 	"rule511": {
 		"title": "5-1-1 pattern",

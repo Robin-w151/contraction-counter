@@ -21,9 +21,7 @@
 		"startedAnnouncement": "Wehe gestartet",
 		"recordedAnnouncement": "Wehe aufgezeichnet: {duration} lang",
 		"clear": "Alle löschen",
-		"clearConfirm": "Zum Löschen erneut tippen",
-		"cleared": "Alle Wehen gelöscht",
-		"recorded": "{count} aufgezeichnet"
+		"clearConfirm": "Zum Löschen erneut tippen"
 	},
 	"rule511": {
 		"title": "5-1-1-Muster",

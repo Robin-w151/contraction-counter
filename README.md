@@ -87,12 +87,14 @@ static/                    Icons and robots.txt
 
 ## How the 5-1-1 check works
 
-`evaluate511` in [stats.ts](src/lib/contractions/stats/stats.ts) looks at the contractions started
-within the last hour and checks three things:
+`evaluate511` in [stats.ts](src/lib/contractions/stats/stats.ts) first isolates the **current run** —
+the trailing stretch of contractions with no gap longer than 15 minutes, so an earlier session cannot
+bleed into this one. Within that run it looks at the contractions started in the last hour and checks
+three things:
 
 - **Duration** — the mean duration in that window is at least 60 s.
 - **Interval** — the mean gap between consecutive starts in that window is at most 5 min.
-- **Hour** — the very first recorded contraction started at least an hour ago.
+- **Hour** — the current run started at least an hour ago.
 
 All three must hold for the pattern to count as met.
 
@@ -102,6 +104,10 @@ Records are stored under the `contractions` key in `localStorage` as a versioned
 defensive: malformed or unreadable data degrades to an empty state rather than throwing. A
 contraction left running for more than 30 minutes is discarded on load, so a forgotten timer doesn't
 poison the next session. "Clear all" requires a confirming second tap and wipes the stored state.
+
+Several tabs can be open at once — an installed PWA alongside a browser tab, say. Every write merges
+with what is already stored rather than overwriting it, so no tab can drop another's contractions, and
+a `storage` listener pulls in changes made elsewhere as they happen.
 
 ## Internationalisation
 

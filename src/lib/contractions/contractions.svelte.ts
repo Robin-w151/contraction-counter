@@ -2,7 +2,7 @@ import { browser } from '$app/env';
 import { nowOffsetString } from '#lib/shared/datetime.js';
 import { durationOf, elapsedSince, evaluate511, intervalOf } from './stats/stats.js';
 import * as storage from './storage/storage.js';
-import type { Contraction, OffsetDateTime, Rule511 } from './types.js';
+import type { Contraction, OffsetDateTime, PersistedState, Rule511 } from './types.js';
 
 class Contractions {
 	records = $state<Contraction[]>([]);
@@ -12,9 +12,12 @@ class Contractions {
 
 	constructor() {
 		if (!browser) return;
-		const restored = storage.load(this.now);
-		this.records = restored.records;
-		this.runningStart = restored.running;
+		this.adopt(storage.load(this.now));
+		addEventListener('storage', (event) => {
+			if (event.key === null || event.key === storage.STORAGE_KEY) {
+				this.adopt(storage.load(new Date()));
+			}
+		});
 	}
 
 	get isRunning(): boolean {
@@ -34,8 +37,11 @@ class Contractions {
 	}
 
 	get lastInterval(): number | null {
-		if (this.records.length < 2) return null;
-		return intervalOf(this.records[this.records.length - 2], this.records[this.records.length - 1]);
+		if (this.records.length < 2) {
+			return null;
+		}
+
+		return intervalOf(this.records.at(-2)!, this.records.at(-1)!);
 	}
 
 	get sinceLast(): number | null {
@@ -70,10 +76,18 @@ class Contractions {
 		this.now = new Date();
 	}
 
+	private adopt(state: PersistedState) {
+		this.records = state.records;
+		this.runningStart = state.running;
+	}
+
 	private persist() {
-		if (browser) {
-			storage.save({ records: this.records, running: this.runningStart });
+		if (!browser) {
+			return;
 		}
+
+		this.records = storage.mergeRecords(storage.load(this.now).records, this.records);
+		storage.save({ records: this.records, running: this.runningStart });
 	}
 }
 

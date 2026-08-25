@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { enUS } from 'date-fns/locale';
 import {
+	currentRun,
 	evaluate511,
 	durationOf,
 	formatClock,
@@ -59,6 +60,23 @@ describe('recentWindow', () => {
 	});
 });
 
+describe('currentRun', () => {
+	it('holds a run together across the ordinary spread of gaps', () => {
+		const records = [contraction(0, 70), contraction(6, 70), contraction(19, 70)];
+		expect(currentRun(records)).toEqual(records);
+	});
+
+	it('drops everything before a gap long enough to end the run', () => {
+		const earlier = contraction(0, 70);
+		const records = [earlier, contraction(30, 70), contraction(34, 70)];
+		expect(currentRun(records)).toEqual(records.slice(1));
+	});
+
+	it('returns nothing for an empty log', () => {
+		expect(currentRun([])).toEqual([]);
+	});
+});
+
 describe('evaluate511', () => {
 	it('reports met when all three criteria hold', () => {
 		const { records, now } = qualifyingRun();
@@ -85,6 +103,24 @@ describe('evaluate511', () => {
 	it('fails only hourOk when the pattern has not held long enough', () => {
 		const records = Array.from({ length: 6 }, (_, index) => contraction(index * 4, 70));
 		const result = evaluate511(records, new Date(Date.UTC(2026, 7, 24, 10, 25)));
+		expect(result).toMatchObject({ durationOk: true, intervalOk: true, hourOk: false, met: false });
+	});
+
+	it('is unmoved by a contraction logged before this run started', () => {
+		// A run whose first contraction sits right on the one-hour boundary, so a
+		// stale record would be the immediate predecessor of the window.
+		const records = Array.from({ length: 12 }, (_, index) => contraction(15 + index * 5, 70));
+		const now = new Date(Date.UTC(2026, 7, 24, 11, 15));
+		const stale = contraction(-180, 70); // three hours before the run began
+
+		expect(evaluate511(records, now).met).toBe(true);
+		expect(evaluate511([stale, ...records], now)).toEqual(evaluate511(records, now));
+	});
+
+	it('does not count an earlier session towards the hour', () => {
+		const yesterday = contraction(-1440, 70);
+		const records = [yesterday, contraction(63, 70), contraction(67, 70), contraction(71, 70)];
+		const result = evaluate511(records, new Date(Date.UTC(2026, 7, 24, 11, 15)));
 		expect(result).toMatchObject({ durationOk: true, intervalOk: true, hourOk: false, met: false });
 	});
 

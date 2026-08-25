@@ -102,6 +102,63 @@ test('clear all wipes the log and it stays wiped', async ({ page }) => {
 	await expect(clear).toBeHidden();
 });
 
+test('picks up a contraction recorded in another tab', async ({ page, context }) => {
+	await startClock(page);
+	await page.goto('.');
+
+	await startButton(page).click();
+	await page.clock.runFor(45_000);
+	await stopButton(page).click();
+	await expect(lastDuration(page)).toHaveText('0:45');
+
+	const other = await context.newPage();
+	await startClock(other, new Date('2026-08-24T10:00:45.000Z'));
+	await other.goto('.');
+	await expect(lastDuration(other)).toHaveText('0:45');
+
+	// Four minutes after the first contraction started.
+	await other.clock.runFor(195_000);
+	await startButton(other).click();
+	await other.clock.runFor(70_000);
+	await stopButton(other).click();
+
+	await expect(lastDuration(page)).toHaveText('1:10');
+	// The interval now spans both tabs' records, so it is a real reading rather
+	// than the placeholder a single-record log shows.
+	await expect(lastInterval(page)).toHaveText(/^\d+:\d{2}$/);
+});
+
+test('keeps contractions another tab wrote while this one was open', async ({ page }) => {
+	await startClock(page);
+	await page.goto('.');
+	// The store reads localStorage as it boots, so let it finish before seeding.
+	await expect(startButton(page)).toBeVisible();
+
+	// A write from this same document raises no storage event, so the page keeps
+	// its stale in-memory copy — the state a second tab leaves behind.
+	await page.evaluate((key) => {
+		const stored = JSON.parse(
+			window.localStorage.getItem(key) ?? '{"v":1,"records":[],"running":null}'
+		);
+		stored.records.push({
+			start: '2026-08-24T09:00:00.000Z',
+			end: '2026-08-24T09:01:10.000Z'
+		});
+		window.localStorage.setItem(key, JSON.stringify(stored));
+	}, STORAGE_KEY);
+
+	await startButton(page).click();
+	await page.clock.runFor(45_000);
+	await stopButton(page).click();
+	await expect(lastDuration(page)).toHaveText('0:45');
+
+	const stored = await page.evaluate(
+		(key) => JSON.parse(window.localStorage.getItem(key) ?? 'null'),
+		STORAGE_KEY
+	);
+	expect(stored.records).toHaveLength(2);
+});
+
 test.describe('5-1-1 indicator', () => {
 	/** 70s long, 4 minutes apart, spanning well over an hour — all three criteria. */
 	const qualifying = Array.from({ length: 18 }, (_, index) => {

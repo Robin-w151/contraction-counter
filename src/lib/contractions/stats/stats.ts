@@ -6,6 +6,10 @@ import type { Contraction, Rule511 } from '../types.js';
 const MIN_DURATION_MS = 60_000; // the first "1" of 5-1-1: a minute long
 const MAX_INTERVAL_MS = 5 * 60_000; // the "5": five minutes apart
 const PATTERN_HOURS = 1; // the second "1": sustained for an hour
+// Individual gaps vary either side of the five-minute target, so the run only
+// counts as broken well past it — anything before such a gap is an earlier
+// session and must not be mixed into this one's averages.
+const MAX_RUN_GAP_MS = 15 * 60_000;
 
 export function durationOf(contraction: Contraction): number {
 	return differenceInMilliseconds(instant(contraction.end), instant(contraction.start));
@@ -28,14 +32,19 @@ export function recentWindow(
 	return records.filter((record) => instant(record.start) >= cutoff);
 }
 
-export function evaluate511(records: Contraction[], now: Date): Rule511 {
-	const window = recentWindow(records, now);
+export function currentRun(records: Contraction[]): Contraction[] {
+	let first = Math.max(0, records.length - 1);
+	while (first > 0 && intervalOf(records[first - 1], records[first]) <= MAX_RUN_GAP_MS) {
+		first -= 1;
+	}
+	return records.slice(first);
+}
 
-	const intervals = records
-		.slice(1)
-		.map((record, index) => ({ record, interval: intervalOf(records[index], record) }))
-		.filter(({ record }) => window.includes(record))
-		.map(({ interval }) => interval);
+export function evaluate511(records: Contraction[], now: Date): Rule511 {
+	const run = currentRun(records);
+	const window = recentWindow(run, now);
+
+	const intervals = window.slice(1).map((record, index) => intervalOf(window[index], record));
 
 	const averageDuration = mean(window.map(durationOf));
 	const averageInterval = mean(intervals);
@@ -43,7 +52,7 @@ export function evaluate511(records: Contraction[], now: Date): Rule511 {
 	const durationOk = averageDuration !== null && averageDuration >= MIN_DURATION_MS;
 	const intervalOk = averageInterval !== null && averageInterval <= MAX_INTERVAL_MS;
 
-	const first = records[0];
+	const first = run[0];
 	const hourOk = first !== undefined && instant(first.start) <= subHours(now, PATTERN_HOURS);
 
 	return { durationOk, intervalOk, hourOk, met: durationOk && intervalOk && hourOk };

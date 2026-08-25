@@ -48,6 +48,14 @@ export function save(state: PersistedState): void {
 	}
 }
 
+export function mergeRecords(...groups: Contraction[][]): Contraction[] {
+	const byInstant = new Map<string, Contraction>();
+	for (const record of groups.flat()) {
+		byInstant.set(`${record.start}|${record.end}`, record);
+	}
+	return sortByStart([...byInstant.values()]);
+}
+
 export function clear(): void {
 	try {
 		localStorage.removeItem(STORAGE_KEY);
@@ -72,9 +80,13 @@ function parseRecords(value: unknown): Contraction[] {
 		return [];
 	}
 
-	return value
-		.filter(isRecord)
-		.sort((a, b) => fromOffsetString(a.start)!.getTime() - fromOffsetString(b.start)!.getTime());
+	return sortByStart(value.filter(isRecord));
+}
+
+function sortByStart(records: Contraction[]): Contraction[] {
+	return [...records].sort(
+		(a, b) => fromOffsetString(a.start)!.getTime() - fromOffsetString(b.start)!.getTime()
+	);
 }
 
 function parseRunning(value: unknown, now: Date): OffsetDateTime | null {

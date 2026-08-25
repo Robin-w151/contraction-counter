@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { STORAGE_KEY, clear, load, save } from './storage.js';
+import { STORAGE_KEY, clear, load, mergeRecords, save } from './storage.js';
 import type { Contraction } from '../types.js';
 
 const NOW = new Date('2026-08-24T12:00:00.000Z');
@@ -106,6 +106,28 @@ describe('save', () => {
 			})
 		});
 		expect(() => save({ records: [VALID], running: null })).not.toThrow();
+	});
+});
+
+describe('mergeRecords', () => {
+	const later = record('2026-08-24T13:10:00.000+02:00', '2026-08-24T13:11:00.000+02:00');
+
+	it('keeps records only one side knows about', () => {
+		expect(mergeRecords([VALID], [later])).toEqual([VALID, later]);
+	});
+
+	it('does not duplicate records both sides hold', () => {
+		expect(mergeRecords([VALID, later], [VALID])).toEqual([VALID, later]);
+	});
+
+	it('sorts the result by start', () => {
+		expect(mergeRecords([later], [VALID])).toEqual([VALID, later]);
+	});
+
+	it('leaves its inputs alone', () => {
+		const mine = [later];
+		mergeRecords([VALID], mine);
+		expect(mine).toEqual([later]);
 	});
 });
 

@@ -14,7 +14,8 @@ Live at <https://robin-w151.github.io/contraction-counter/>.
 ## Features
 
 - **One-tap timer** — a single start/stop button, with a live clock for the running contraction and
-  the time since the last one started.
+  the time since the last one started. A running contraction can be discarded with a confirming second
+  tap, and stopping within three seconds of starting counts as a mis-tap rather than a contraction.
 - **5-1-1 evaluation** — contractions lasting about a minute, about five minutes apart, sustained for
   an hour. Each criterion is shown separately, plus an overall verdict.
 - **Offline first** — a service worker precaches the whole app, so it keeps working without a

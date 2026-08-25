@@ -1,8 +1,11 @@
 import { browser } from '$app/env';
-import { nowOffsetString } from '#lib/shared/datetime.js';
+import { nowOffsetString, toOffsetString } from '#lib/shared/datetime.js';
 import { durationOf, elapsedSince, evaluate511, intervalOf } from './stats/stats.js';
 import * as storage from './storage/storage.js';
 import type { Contraction, OffsetDateTime, PersistedState, Rule511 } from './types.js';
+
+// Nothing this brief is a contraction — it is a double tap on the toggle.
+const MIN_RECORDABLE_MS = 3_000;
 
 class Contractions {
 	records = $state<Contraction[]>([]);
@@ -58,10 +61,24 @@ class Contractions {
 		this.persist();
 	}
 
-	stop() {
+	stop(): boolean {
 		const start = this.runningStart;
-		if (start === null) return;
-		this.records = [...this.records, { start, end: nowOffsetString() }];
+		if (start === null) return false;
+
+		const end = new Date();
+		if (elapsedSince(start, end) < MIN_RECORDABLE_MS) {
+			this.discard();
+			return false;
+		}
+
+		this.records = [...this.records, { start, end: toOffsetString(end) }];
+		this.runningStart = null;
+		this.persist();
+		return true;
+	}
+
+	discard() {
+		if (this.runningStart === null) return;
 		this.runningStart = null;
 		this.persist();
 	}

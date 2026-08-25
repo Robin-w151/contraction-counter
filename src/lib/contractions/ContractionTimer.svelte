@@ -6,6 +6,8 @@
 	import { formatClock, formatSpoken } from './stats/stats.js';
 
 	let announcement = $state('');
+	let confirmingDiscard = $state(false);
+	let discardTimer: ReturnType<typeof setTimeout> | undefined;
 
 	const running = $derived(contractions.isRunning);
 	const sinceLast = $derived(contractions.sinceLast);
@@ -35,16 +37,37 @@
 	});
 
 	function toggle() {
+		disarmDiscard();
+
 		if (contractions.isRunning) {
-			contractions.stop();
-			announcement = m['contractions.recordedAnnouncement']({
-				duration: formatSpoken(contractions.lastDuration ?? 0, dateFnsLocale(locale.current))
-			});
+			announcement = contractions.stop()
+				? m['contractions.recordedAnnouncement']({
+						duration: formatSpoken(contractions.lastDuration ?? 0, dateFnsLocale(locale.current))
+					})
+				: m['contractions.tooShortAnnouncement']();
 		} else {
 			contractions.start();
 			announcement = m['contractions.startedAnnouncement']();
 		}
 		contractions.tick();
+	}
+
+	function requestDiscard() {
+		if (!confirmingDiscard) {
+			confirmingDiscard = true;
+			discardTimer = setTimeout(() => (confirmingDiscard = false), 4000);
+			return;
+		}
+
+		disarmDiscard();
+		contractions.discard();
+		announcement = m['contractions.discardedAnnouncement']();
+		contractions.tick();
+	}
+
+	function disarmDiscard() {
+		clearTimeout(discardTimer);
+		confirmingDiscard = false;
 	}
 </script>
 
@@ -61,15 +84,23 @@
 		</p>
 	</div>
 
-	<button
-		type="button"
-		onclick={toggle}
-		class="btn min-h-32 w-full text-2xl {running
-			? 'preset-filled-error-500'
-			: 'preset-filled-primary-500'}"
-	>
-		{running ? m['contractions.stop']() : m['contractions.start']()}
-	</button>
+	<div class="flex w-full flex-col items-center gap-3">
+		<button
+			type="button"
+			onclick={toggle}
+			class="btn min-h-32 w-full text-2xl {running
+				? 'preset-filled-error-500'
+				: 'preset-filled-primary-500'}"
+		>
+			{running ? m['contractions.stop']() : m['contractions.start']()}
+		</button>
+
+		{#if running}
+			<button type="button" onclick={requestDiscard} class="btn preset-tonal-error btn-sm">
+				{confirmingDiscard ? m['contractions.discardConfirm']() : m['contractions.discard']()}
+			</button>
+		{/if}
+	</div>
 
 	<dl class="grid w-full grid-cols-2 gap-4 text-center">
 		<div>
@@ -86,5 +117,5 @@
 		</div>
 	</dl>
 
-	<p class="sr-only" aria-live="polite">{announcement}</p>
+	<p data-testid="announcement" class="sr-only" aria-live="polite">{announcement}</p>
 </section>

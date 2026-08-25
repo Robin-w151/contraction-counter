@@ -13,6 +13,8 @@
 	"contractions": {
 		"start": "Wehe starten",
 		"stop": "Wehe beenden",
+		"discard": "Wehe verwerfen",
+		"discardConfirm": "Zum Verwerfen erneut tippen",
 		"elapsed": "Aktuelle Wehe",
 		"sinceLast": "Seit Beginn der letzten Wehe",
 		"noneYet": "Noch keine Wehen aufgezeichnet",
@@ -20,6 +22,8 @@
 		"lastInterval": "Letzter Abstand",
 		"startedAnnouncement": "Wehe gestartet",
 		"recordedAnnouncement": "Wehe aufgezeichnet: {duration} lang",
+		"discardedAnnouncement": "Wehe verworfen, nichts aufgezeichnet",
+		"tooShortAnnouncement": "Zu kurz für eine Wehe, nichts aufgezeichnet",
 		"clear": "Alle löschen",
 		"clearConfirm": "Zum Löschen erneut tippen"
 	},

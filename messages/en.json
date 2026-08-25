@@ -13,6 +13,8 @@
 	"contractions": {
 		"start": "Start contraction",
 		"stop": "Stop contraction",
+		"discard": "Discard contraction",
+		"discardConfirm": "Tap again to discard",
 		"elapsed": "Current contraction",
 		"sinceLast": "Since last contraction started",
 		"noneYet": "No contractions recorded yet",
@@ -20,6 +22,8 @@
 		"lastInterval": "Last interval",
 		"startedAnnouncement": "Contraction started",
 		"recordedAnnouncement": "Contraction recorded: {duration} long",
+		"discardedAnnouncement": "Contraction discarded, nothing was recorded",
+		"tooShortAnnouncement": "Too short to be a contraction, nothing was recorded",
 		"clear": "Clear all",
 		"clearConfirm": "Tap again to erase everything"
 	},

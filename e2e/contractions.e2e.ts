@@ -7,6 +7,8 @@ const lastDuration = (page: Page) => page.getByTestId('last-duration');
 const lastInterval = (page: Page) => page.getByTestId('last-interval');
 const startButton = (page: Page) => page.getByRole('button', { name: 'Start contraction' });
 const stopButton = (page: Page) => page.getByRole('button', { name: 'Stop contraction' });
+const discardButton = (page: Page) => page.getByRole('button', { name: 'Discard contraction' });
+const announcement = (page: Page) => page.getByTestId('announcement');
 
 /**
  * Elapsed-time assertions against the wall clock would mean sleeping for real
@@ -100,6 +102,64 @@ test('clear all wipes the log and it stays wiped', async ({ page }) => {
 	await page.reload();
 	await expect(readout(page)).toHaveText('–:––');
 	await expect(clear).toBeHidden();
+});
+
+test('discards a running contraction instead of recording it', async ({ page }) => {
+	await startClock(page);
+	await page.goto('.');
+
+	await startButton(page).click();
+	await page.clock.runFor(30_000);
+	await expect(readout(page)).toHaveText('0:30');
+
+	await discardButton(page).click();
+	// First tap only arms it — the contraction must still be running.
+	await expect(stopButton(page)).toBeVisible();
+	await expect(readout(page)).toHaveText('0:30');
+
+	await page.getByRole('button', { name: 'Tap again to discard' }).click();
+	await expect(startButton(page)).toBeVisible();
+	await expect(readout(page)).toHaveText('–:––');
+	await expect(lastDuration(page)).toHaveText('–:––');
+	await expect(announcement(page)).toHaveText('Contraction discarded, nothing was recorded');
+
+	await page.reload();
+	await expect(readout(page)).toHaveText('–:––');
+	await expect(startButton(page)).toBeVisible();
+});
+
+test('a double tap on the toggle records nothing', async ({ page }) => {
+	await startClock(page);
+	await page.goto('.');
+	// `install` on its own leaves the clock running in real time, and a Playwright
+	// click is far slower than a thumb. Pause it so both taps land on one instant.
+	await expect(startButton(page)).toBeVisible();
+	await page.clock.pauseAt(new Date('2026-08-24T10:00:05.000Z'));
+
+	await startButton(page).click();
+	await stopButton(page).click();
+
+	await expect(startButton(page)).toBeVisible();
+	await expect(readout(page)).toHaveText('–:––');
+	await expect(lastDuration(page)).toHaveText('–:––');
+	await expect(announcement(page)).toHaveText(
+		'Too short to be a contraction, nothing was recorded'
+	);
+	await expect(page.getByRole('button', { name: 'Clear all' })).toBeHidden();
+});
+
+test('the discard button is only offered while a contraction runs', async ({ page }) => {
+	await startClock(page);
+	await page.goto('.');
+
+	await expect(discardButton(page)).toBeHidden();
+	await startButton(page).click();
+	await expect(discardButton(page)).toBeVisible();
+
+	await page.clock.runFor(45_000);
+	await stopButton(page).click();
+	await expect(discardButton(page)).toBeHidden();
+	await expect(lastDuration(page)).toHaveText('0:45');
 });
 
 test('picks up a contraction recorded in another tab', async ({ page, context }) => {

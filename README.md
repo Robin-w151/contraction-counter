@@ -65,7 +65,7 @@ pnpm dev          # or: pnpm dev --open
 
 ## Project structure
 
-```
+```text
 src/
   lib/
     contractions/          Timer UI and domain logic

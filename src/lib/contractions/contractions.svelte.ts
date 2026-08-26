@@ -4,8 +4,9 @@ import { durationOf, elapsedSince, evaluate511, intervalOf } from './stats/stats
 import * as storage from './storage/storage.js';
 import type { Contraction, OffsetDateTime, PersistedState, Rule511 } from './types.js';
 
-// Nothing this brief is a contraction — it is a double tap on the toggle.
 const MIN_RECORDABLE_MS = 3_000;
+
+export type StopOutcome = 'idle' | 'recorded' | 'tooShort' | 'tooLong';
 
 class Contractions {
 	records = $state<Contraction[]>([]);
@@ -61,20 +62,22 @@ class Contractions {
 		this.persist();
 	}
 
-	stop(): boolean {
+	stop(): StopOutcome {
 		const start = this.runningStart;
-		if (start === null) return false;
+		if (start === null) return 'idle';
 
 		const end = new Date();
-		if (elapsedSince(start, end) < MIN_RECORDABLE_MS) {
+		const elapsed = elapsedSince(start, end);
+
+		if (elapsed < MIN_RECORDABLE_MS || elapsed >= storage.MAX_RUNNING_MS) {
 			this.discard();
-			return false;
+			return elapsed < MIN_RECORDABLE_MS ? 'tooShort' : 'tooLong';
 		}
 
 		this.records = [...this.records, { start, end: toOffsetString(end) }];
 		this.runningStart = null;
 		this.persist();
-		return true;
+		return 'recorded';
 	}
 
 	discard() {

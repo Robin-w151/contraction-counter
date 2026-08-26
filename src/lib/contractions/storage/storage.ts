@@ -1,10 +1,10 @@
-import { differenceInMinutes } from 'date-fns';
+import { differenceInMilliseconds } from 'date-fns';
 import { fromOffsetString } from '#lib/shared/datetime.js';
 import type { Contraction, OffsetDateTime, PersistedState } from '../types.js';
 
 export const STORAGE_KEY = 'contractions';
 
-const MAX_RUNNING_MINUTES = 30;
+export const MAX_RUNNING_MS = 30 * 60_000;
 const EMPTY: PersistedState = { records: [], running: null };
 
 type StoredShape = {
@@ -99,7 +99,7 @@ function parseRunning(value: unknown, now: Date): OffsetDateTime | null {
 		return null;
 	} else if (startedAt > now) {
 		return null;
-	} else if (differenceInMinutes(now, startedAt) >= MAX_RUNNING_MINUTES) {
+	} else if (differenceInMilliseconds(now, startedAt) >= MAX_RUNNING_MS) {
 		return null;
 	} else {
 		return value;

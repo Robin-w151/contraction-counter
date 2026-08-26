@@ -24,8 +24,10 @@
 		"recordedAnnouncement": "Contraction recorded: {duration} long",
 		"discardedAnnouncement": "Contraction discarded, nothing was recorded",
 		"tooShortAnnouncement": "Too short to be a contraction, nothing was recorded",
+		"tooLongAnnouncement": "Running for over 30 minutes, nothing was recorded",
 		"clear": "Clear all",
-		"clearConfirm": "Tap again to erase everything"
+		"clearConfirm": "Tap again to erase everything",
+		"clearedAnnouncement": "All contractions erased"
 	},
 	"rule511": {
 		"title": "5-1-1 pattern",

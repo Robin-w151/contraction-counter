@@ -2,7 +2,7 @@
 	import { m } from '#lib/paraglide/messages.js';
 	import { dateFnsLocale } from '#lib/shared/datetime.js';
 	import { locale } from '#lib/shared/locale.svelte.js';
-	import { contractions } from './contractions.svelte.js';
+	import { contractions, type StopOutcome } from './contractions.svelte.js';
 	import { formatClock, formatSpoken } from './stats/stats.js';
 
 	let announcement = $state('');
@@ -40,16 +40,27 @@
 		disarmDiscard();
 
 		if (contractions.isRunning) {
-			announcement = contractions.stop()
-				? m['contractions.recordedAnnouncement']({
-						duration: formatSpoken(contractions.lastDuration ?? 0, dateFnsLocale(locale.current))
-					})
-				: m['contractions.tooShortAnnouncement']();
+			announcement = stopped(contractions.stop());
 		} else {
 			contractions.start();
 			announcement = m['contractions.startedAnnouncement']();
 		}
 		contractions.tick();
+	}
+
+	function stopped(outcome: StopOutcome): string {
+		switch (outcome) {
+			case 'recorded':
+				return m['contractions.recordedAnnouncement']({
+					duration: formatSpoken(contractions.lastDuration ?? 0, dateFnsLocale(locale.current))
+				});
+			case 'tooShort':
+				return m['contractions.tooShortAnnouncement']();
+			case 'tooLong':
+				return m['contractions.tooLongAnnouncement']();
+			case 'idle':
+				return '';
+		}
 	}
 
 	function requestDiscard() {

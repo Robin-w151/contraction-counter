@@ -29,7 +29,11 @@
 			function resolveLocale() {
 				const stored = storedValue('PARAGLIDE_LOCALE', ['de', 'en']);
 				if (stored) return stored;
-				if (navigator.language.startsWith('de')) return 'de';
+				for (const tag of navigator.languages ?? [navigator.language]) {
+					if (tag === 'de' || tag === 'en') return tag;
+					const base = tag.split('-')[0];
+					if (base === 'de' || base === 'en') return base;
+				}
 				return 'en';
 			}
 

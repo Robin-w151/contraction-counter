@@ -103,8 +103,22 @@ test.describe('pre-paint fallbacks', () => {
 		await expect(html).toHaveAttribute('lang', 'de');
 	});
 
-	test('missing navigator.language still yields the base locale', async ({ page }) => {
+	// Paraglide matches every entry of `navigator.languages`, so the pre-paint
+	// `lang` must do the same or it labels the page as the wrong language.
+	test('lang matches the first supported preferred language', async ({ page }) => {
 		await page.addInitScript(() => {
+			Object.defineProperty(navigator, 'languages', { value: ['fr-FR', 'de-DE'] });
+			Object.defineProperty(navigator, 'language', { value: 'fr-FR' });
+		});
+		await page.goto('.');
+
+		await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+		await expect(page.getByRole('banner').getByText('Wehen-Zähler')).toBeVisible();
+	});
+
+	test('missing navigator languages still yields the base locale', async ({ page }) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(navigator, 'languages', { value: undefined });
 			Object.defineProperty(navigator, 'language', { value: undefined });
 		});
 		await page.goto('.');
